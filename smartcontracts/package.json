@@ -1,0 +1,22 @@
+{
+  "name": "badgebound-smartcontracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for the BadgeBound quest engine",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:testnet": "hardhat run scripts/deploy-questbadges.ts --network hederaTestnet"
+  },
+  "keywords": [],
+  "author": "deepmeridian",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
+    "hardhat": "^2.27.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "dotenv": "^17.2.3"
+  }
+}
