@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum QuestType {
+  ONBOARDING
+  DAILY
+  WEEKLY
+  SEASONAL
+  ACHIEVEMENT
+}
+
+enum QuestStatus {
+  LOCKED
+  IN_PROGRESS
+  COMPLETED
+  CLAIMED
+  EXPIRED
+}
+
+model User {
+  wallet        String       @id
+  createdAt     DateTime     @default(now())
+  lastSeenAt    DateTime?    
+  level         Int          @default(1)
+  xp            BigInt       @default(0)
+  userQuests    UserQuest[]
+}
+
+model Protocol {
+  id       Int      @id @default(autoincrement())
+  slug     String   @unique
+  name     String
+  logoUrl  String?
+  config   Json?
+  quests   Quest[]
+}
+
+model Quest {
+  id          Int          @id @default(autoincrement())
+  protocol    Protocol?    @relation(fields: [protocolId], references: [id])
+  protocolId  Int?
+  type        QuestType
+  title       String
+  description String
+  startAt     DateTime?
+  endAt       DateTime?
+  requirement Json          // e.g. { type: "SWAP_VOLUME", poolId: "...", minVolume: 10 }
+  reward      Json          // e.g. { xp: 100, badgeQuestId: 1, tokenAmount: 5 }
+  seasonId    Int?
+  isActive    Boolean       @default(true)
+  userQuests  UserQuest[]
+}
+
+model UserQuest {
+  id           Int         @id @default(autoincrement())
+  user         User        @relation(fields: [userWallet], references: [wallet])
+  userWallet   String
+  quest        Quest       @relation(fields: [questId], references: [id])
+  questId      Int
+  status       QuestStatus @default(LOCKED)
+  progressData Json?
+  createdAt    DateTime    @default(now())
+  lastUpdated  DateTime    @default(now())
+  completedAt  DateTime?
+  claimedAt    DateTime?
+
+  @@unique([userWallet, questId])
+}
