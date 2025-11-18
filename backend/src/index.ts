@@ -6,6 +6,7 @@ import { httpLoggingMiddleware } from "./middleware/httpLogging";
 import { healthRouter } from "./routes/health";
 import { questsRouter } from "./routes/quests";
 import { adminQuestsRouter } from "./routes/adminQuests";
+import { adminProtocolsRouter } from "./routes/adminProtocols";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(httpLoggingMiddleware);
 app.use("/health", healthRouter);
 app.use("/api/quests", questsRouter);
 app.use("/api/admin/quests", adminQuestsRouter);
+app.use("/api/admin/protocols", adminProtocolsRouter);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

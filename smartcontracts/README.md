@@ -52,6 +52,26 @@ The `QuestBadges` contract is the core NFT contract that manages badge creation,
 - `QUEST_CREATOR_ROLE`: Can create and manage quests
 - `DEFAULT_ADMIN_ROLE`: Full contract administration privileges
 
+## Additional Scripts
+
+### swap.ts
+
+Swap HBAR on SaucerSwap Testnet via a direct call to the contract since there's no Testnet UI available.
+Make sure to set your HEDERA_PRIVATE_KEY in the .env file beforehand.
+
+```bash
+npx hardhat run scripts/swap.ts --network hederaTestnet
+```
+
+### mint-saucerswap-lp.ts
+
+Swap HBAR on SaucerSwap Testnet via a direct call to the contract since there's no Testnet UI available.
+Make sure to set your SaucerSwap V2 / CLAMM contracts on testnet in the .env file beforehand.
+
+```bash
+npx hardhat run scripts/mint-saucerswap-lp.ts --network hederaTestnet
+```
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file in the repository root for details.

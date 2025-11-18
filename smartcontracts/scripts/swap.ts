@@ -16,7 +16,7 @@ const PATH = [
   USDC
 ];
 
-const AMOUNT_IN_HBAR = "0.1";
+const AMOUNT_IN_HBAR = "100";
 //
 
 // ABI for swapExactHBARForTokens

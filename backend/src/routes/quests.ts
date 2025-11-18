@@ -23,7 +23,52 @@ questsRouter.get("/:wallet", async (req, res, next) => {
     const schema = z.string().min(5);
     const wallet = schema.parse(req.params.wallet);
     const userQuests = await getUserQuests(wallet);
-    res.json(userQuests);
+
+    const response = userQuests.map((uq) => {
+      const pd = (uq.progressData as any) || {};
+
+      const progress = typeof pd.progress === "number" ? pd.progress : null;
+      const target = typeof pd.target === "number" ? pd.target : null;
+
+      let completion: number;
+      if (typeof pd.completion === "number") {
+        completion = pd.completion;
+      } else if (uq.status === "COMPLETED" || uq.status === "CLAIMED") {
+        completion = 1;
+      } else {
+        completion = 0;
+      }
+
+      const completionPercent =
+        typeof pd.completionPercent === "number"
+          ? pd.completionPercent
+          : Math.round(completion * 100);
+
+      return {
+        questId: uq.questId,
+        status: uq.status,
+        wallet: uq.userWallet,
+        completion,
+        completionPercent,
+        progress,
+        target,
+        lastCompletedPeriodKey: pd.lastCompletedPeriodKey,
+        lastClaimedPeriodKey: pd.lastClaimedPeriodKey,
+        claimedAt: uq.claimedAt,
+        quest: uq.quest && {
+          id: uq.quest.id,
+          protocolId: uq.quest.protocolId,
+          type: uq.quest.type,
+          title: uq.quest.title,
+          description: uq.quest.description,
+          seasonId: uq.quest.seasonId,
+          requirement: uq.quest.requirement,
+          reward: uq.quest.reward,
+        },
+      };
+    });
+
+    res.json(response);
   } catch (err) {
     next(err);
   }

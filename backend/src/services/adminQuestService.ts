@@ -41,6 +41,12 @@ type CreateQuestInput = {
   repeatable: boolean;
 };
 
+type UpdateQuestInput = {
+  title?: string;
+  description?: string;
+  isActive?: boolean;
+};
+
 /**
  * Creates a quest in the DB and registers it on-chain in QuestBadges.
  * Uses the auto-increment quest.id as questId on-chain to keep them aligned.
@@ -80,4 +86,15 @@ export async function createQuestWithOnChainRegistration(input: CreateQuestInput
     quest,
     txHash: receipt?.hash,
   };
+}
+
+export async function updateQuest(id: number, input: UpdateQuestInput) {
+  return prisma.quest.update({
+    where: { id },
+    data: {
+      ...(input.title !== undefined ? { title: input.title } : {}),
+      ...(input.description !== undefined ? { description: input.description } : {}),
+      ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
+    },
+  });
 }

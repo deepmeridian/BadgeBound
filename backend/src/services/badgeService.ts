@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import { prisma } from "../config/prisma";
 import { config } from "../config/env";
 import logger from '../config/logger';
+import { Quest } from "@prisma/client";
 
 const QUEST_BADGES_ABI = [
   // mintBadge(address to, uint256 questId)
@@ -37,6 +38,37 @@ function computeLevelFromXp(xp: bigint): number {
   return Number(xp / perLevel) + 1;
 }
 
+function getQuestPeriodKey(quest: Quest, date: Date = new Date()): string | null {
+  const d = date;
+
+  switch (quest.type) {
+    case "DAILY": {
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+      const day = String(d.getUTCDate()).padStart(2, "0");
+      return `daily:${y}-${m}-${day}`;
+    }
+
+    case "WEEKLY": {
+      const y = d.getUTCFullYear();
+
+      const firstDayOfYear = new Date(Date.UTC(y, 0, 1));
+      const pastDaysOfYear = Math.floor(
+        (d.getTime() - firstDayOfYear.getTime()) / (24 * 60 * 60 * 1000)
+      );
+      const week = Math.floor(pastDaysOfYear / 7) + 1;
+      const weekStr = String(week).padStart(2, "0");
+      return `weekly:${y}-W${weekStr}`;
+    }
+
+    case "SEASONAL":
+    case "ONBOARDING":
+    case "ACHIEVEMENT":
+    default:
+      return null;
+  }
+}
+
 /**
  * Mints a badge for a user and updates DB status to CLAIMED.
  * Returns tx hash and tokenId if we can parse it.
@@ -67,6 +99,14 @@ export async function claimBadgeForUser(walletAddress: string, questId: number) 
   const quest = userQuest.quest;
   if (!quest) {
     throw new Error("Quest not found");
+  }
+
+  const periodKey = getQuestPeriodKey(quest);
+  const progressData = (userQuest.progressData as any) || {};
+  const lastClaimedPeriodKey = progressData.lastClaimedPeriodKey as string | undefined;
+
+  if (periodKey && lastClaimedPeriodKey === periodKey) {
+    throw new Error("Quest already claimed for this period");
   }
 
   const reward = quest.reward as any;
@@ -102,9 +142,10 @@ export async function claimBadgeForUser(walletAddress: string, questId: number) 
       claimedAt: new Date(),
       lastUpdated: new Date(),
       progressData: {
-        ...(userQuest.progressData as any),
+        ...progressData,
+        lastClaimedPeriodKey: periodKey ?? progressData.lastClaimedPeriodKey,
         badgeTxHash: receipt?.hash,
-        badgeTokenId: tokenId ? tokenId.toString() : undefined,
+        badgeTokenId: tokenId ? tokenId.toString() : progressData.badgeTokenId,
       },
     },
   });
