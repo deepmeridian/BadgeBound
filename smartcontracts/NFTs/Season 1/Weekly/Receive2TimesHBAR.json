@@ -1,0 +1,13 @@
+{
+  "name": "Receive HBAR two times",
+  "description": "Receive HBAR two times in the same week.",
+  "image": "ipfs://bafybeig4psv3xc5zzb5rqieaehu5xyjabfkzm32co6rqmaws6otiqlxgpm",
+  "attributes": [
+    { "trait_type": "Quest Type", "value": "HBAR_TRANSFER_COUNT" },
+    { "trait_type": "Direction", "value": "IN" },
+    { "trait_type": "Min Transfers", "value": 2 },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": true },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

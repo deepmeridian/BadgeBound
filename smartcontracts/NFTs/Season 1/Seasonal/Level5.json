@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 5",
+  "description": "Mid-season milestone. Level 5 marks a committed explorer of Hedera quests.",
+  "image": "ipfs://bafybeiaqs6m67mwcvzg3kq6uka3ip52r2yo6k7vloixoowtj7ffybqr54y",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 5 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Uncommon" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

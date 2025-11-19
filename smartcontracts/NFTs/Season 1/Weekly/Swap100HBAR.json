@@ -1,0 +1,13 @@
+{
+  "name": "Swap 100 HBAR on SaucerSwap",
+  "description": "You must move at least 100 HBAR (in or out) on SaucerSwap during a week to earn this badge.",
+  "image": "ipfs://bafybeied2bge2g5s7jab4thhc6solsq2wtkdtus7i7pajh3dytnzhnpvwu",
+  "attributes": [
+    { "trait_type": "Protocol", "value": "SaucerSwap" },
+    { "trait_type": "Type", "value": "WEEKLY" },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": true},
+    { "trait_type": "Network", "value": "Hedera Testnet" },
+    { "trait_type": "Difficulty", "value": "Easy" }
+  ]
+}

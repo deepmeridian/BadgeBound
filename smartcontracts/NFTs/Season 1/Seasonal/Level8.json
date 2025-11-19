@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 8",
+  "description": "Only a few reach this point. Level 8 proves deep commitment to the season.",
+  "image": "ipfs://bafybeic74vgo5csiwnor2gtdkl7dg2ntqq6obz4sggrhd6gky3jctbpyqa",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 8 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Epic" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

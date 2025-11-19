@@ -27,9 +27,12 @@ model User {
   wallet        String       @id
   createdAt     DateTime     @default(now())
   lastSeenAt    DateTime?    
-  level         Int          @default(1)
-  xp            BigInt       @default(0)
+  seasonXp      Int          @default(0)
+  seasonLevel   Int          @default(1)
+  lifetimeXp    Int          @default(0)
   userQuests    UserQuest[]
+
+  stats UserSeasonStats[]
 }
 
 model Protocol {
@@ -39,6 +42,39 @@ model Protocol {
   logoUrl  String?
   config   Json?
   quests   Quest[]
+}
+
+model Season {
+  id        Int       @id @default(autoincrement())
+  name      String
+  slug      String    @unique // e.g. "s1-founders", "s2-saucerswap"
+  startAt   DateTime?
+  endAt     DateTime?
+  isActive  Boolean   @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  quests    Quest[]
+  stats     UserSeasonStats[]
+}
+
+model UserSeasonStats {
+  id        Int      @id @default(autoincrement())
+  seasonId  Int
+  userWallet String
+
+  xp        Int      @default(0)
+  level     Int      @default(1)
+  badges    Int      @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  season    Season   @relation(fields: [seasonId], references: [id])
+  user      User     @relation(fields: [userWallet], references: [wallet])
+
+  @@unique([seasonId, userWallet])
 }
 
 model Quest {
@@ -53,6 +89,7 @@ model Quest {
   requirement Json          // e.g. { type: "SWAP_VOLUME", poolId: "...", minVolume: 10 }
   reward      Json          // e.g. { xp: 100, badgeQuestId: 1, tokenAmount: 5 }
   seasonId    Int?
+  season      Season?    @relation(fields: [seasonId], references: [id])
   isActive    Boolean       @default(true)
   userQuests  UserQuest[]
 }

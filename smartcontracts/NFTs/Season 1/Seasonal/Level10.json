@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 10",
+  "description": "The pinnacle of Season 1. This legendary badge is proof you reached the maximum Season Level.",
+  "image": "ipfs://bafybeiac4wsshi3i34lom24ov5ibvkxvpmcit2vpsutfnetwr5b7jcce6a",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 10 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Legendary" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

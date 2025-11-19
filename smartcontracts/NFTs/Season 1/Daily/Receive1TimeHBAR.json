@@ -1,0 +1,13 @@
+{
+  "name": "Receive HBAR once a day",
+  "description": "Receive HBAR once during the day.",
+  "image": "ipfs://bafybeieiy475banrsoucqlenhbipchgyepzc6dziy5ylrnpmocwa3berje",
+  "attributes": [
+    { "trait_type": "Quest Type", "value": "HBAR_TRANSFER_COUNT" },
+    { "trait_type": "Direction", "value": "IN" },
+    { "trait_type": "Min Transfers", "value": 1 },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": true },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

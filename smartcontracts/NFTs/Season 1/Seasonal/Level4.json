@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 4",
+  "description": "You’re getting serious. Level 4 is for players who keep coming back to complete their quests.",
+  "image": "ipfs://bafybeicmsqrbqourunggttad3qdixevqd74bplugnqhytwctknukb2ih6q",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 4 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Uncommon" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

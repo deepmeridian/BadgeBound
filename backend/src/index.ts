@@ -7,6 +7,8 @@ import { healthRouter } from "./routes/health";
 import { questsRouter } from "./routes/quests";
 import { adminQuestsRouter } from "./routes/adminQuests";
 import { adminProtocolsRouter } from "./routes/adminProtocols";
+import { adminSeasonsRouter } from "./routes/adminSeasons";
+import { leaderboardRouter } from "./routes/leaderboard";
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use("/health", healthRouter);
 app.use("/api/quests", questsRouter);
 app.use("/api/admin/quests", adminQuestsRouter);
 app.use("/api/admin/protocols", adminProtocolsRouter);
+app.use("/api/admin/seasons", adminSeasonsRouter);
+app.use("/api/leaderboard", leaderboardRouter);
 
 app.use(
   (err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

@@ -150,31 +150,93 @@ export async function claimBadgeForUser(walletAddress: string, questId: number) 
     },
   });
 
+  const normalizedWallet = to.toLowerCase();
+
   //Apply XP reward to User
   const user = await prisma.user.upsert({
-    where: { wallet: to.toLowerCase() },
+    where: { wallet: normalizedWallet },
     update: {},
-    create: { wallet: to.toLowerCase() },
+    create: { wallet: normalizedWallet },
   });
 
-  const currentXp = user.xp ?? 0n;
-  const newXp = currentXp + xpReward;
-  const newLevel = computeLevelFromXp(newXp);
+  const season = await prisma.season.findFirst({
+    where: { isActive: true },
+  });
 
-  await prisma.user.update({
-    where: { wallet: to.toLowerCase() },
-    data: {
-      xp: newXp,
-      level: newLevel,
-      lastSeenAt: new Date(),
-    },
+  if (!season) {
+    // No active season → just bump lifetimeXp, keep going
+    logger.warn(
+      `[Claim] No active season when claiming quest ${questId} for ${normalizedWallet}. ` +
+      `Minting badge succeeded, but seasonal XP will not be recorded.`
+    );
+
+    const currentLifetimeXp = BigInt(user.lifetimeXp ?? 0n);
+    const newLifetimeXp = currentLifetimeXp + xpReward;
+
+    await prisma.user.update({
+      where: { wallet: normalizedWallet },
+      data: {
+        lifetimeXp: Number(newLifetimeXp),
+        lastSeenAt: new Date(),
+      },
+    });
+
+    return {
+      txHash: receipt?.hash,
+      tokenId: tokenId ? tokenId.toString() : null,
+      xpReward: xpReward.toString(),
+      newXp: newLifetimeXp.toString(),
+      newLevel: user.seasonLevel ?? 1,
+    };
+  }
+
+  const currentSeasonXp = BigInt(user.seasonXp ?? 0n);
+  const currentLifetimeXp = BigInt(user.lifetimeXp ?? 0n);
+
+  const newSeasonXp = currentSeasonXp + xpReward;
+  const newLifetimeXp = currentLifetimeXp + xpReward;
+  const newLevel = computeLevelFromXp(newSeasonXp);
+
+  await prisma.$transaction(async (tx) => {
+    // Update User row
+    await tx.user.update({
+      where: { wallet: normalizedWallet },
+      data: {
+        seasonXp: Number(newSeasonXp),
+        seasonLevel: newLevel,
+        lifetimeXp: Number(newLifetimeXp),
+        lastSeenAt: new Date(),
+      },
+    });
+
+    // Update per-season cached stats
+    await tx.userSeasonStats.upsert({
+      where: {
+        seasonId_userWallet: {
+          seasonId: season.id,
+          userWallet: normalizedWallet,
+        },
+      },
+      update: {
+        xp: { increment: Number(xpReward) },
+        level: newLevel,
+        badges: { increment: 1 },
+      },
+      create: {
+        seasonId: season.id,
+        userWallet: normalizedWallet,
+        xp: Number(xpReward),
+        level: newLevel,
+        badges: 1,
+      },
+    });
   });
 
   return {
     txHash: receipt?.hash,
     tokenId: tokenId ? tokenId.toString() : null,
     xpReward: xpReward.toString(),
-    newXp: newXp.toString(),
+    newXp: newSeasonXp.toString(),
     newLevel,
   };
 }

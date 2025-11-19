@@ -16,6 +16,7 @@ type Requirement =
   | { type: "SWAP_COUNT"; protocol: string; minCount: number }
   | { type: "LP_HOLD_DAYS"; protocol: string; minAmount: number; days: number; }
   | { type: "HBAR_TRANSFER_COUNT"; minCount: number; direction?: "IN" | "OUT" | "BOTH" }
+  | { type: "SEASON_LEVEL_AT_LEAST"; minLevel: number }
   | { type: string;[key: string]: any }; // fallback
 
 type RequirementCheckResult = {
@@ -379,6 +380,30 @@ async function fetchSaucerSwapContractResultsForUser(
   return filtered;
 }
 
+function checkSeasonLevelAtLeast(
+  user: { seasonLevel: number; wallet: string },
+  quest: Quest,
+  requirement: { type: "SEASON_LEVEL_AT_LEAST"; minLevel: number }
+): RequirementCheckResult {
+  const minLevel = requirement.minLevel ?? 1;
+  const currentLevel = user.seasonLevel ?? 1;
+
+  const met = currentLevel >= minLevel;
+
+  const clampedLevel = Math.max(0, Math.min(currentLevel, minLevel));
+
+  logger.info(
+    `[QuestEngine] SEASON_LEVEL_AT_LEAST quest ${quest.id} for ${user["wallet"]}: ` +
+      `currentLevel=${currentLevel}, minLevel=${minLevel}, met=${met}`
+  );
+
+  return {
+    met,
+    progress: clampedLevel,
+    target: minLevel,
+  };
+}
+
 /**
  * Update quest statuses for all users for all active quests.
  */
@@ -413,7 +438,7 @@ export async function updateAllUserQuests() {
 
     for (const user of users) {
       try {
-        const result = await userMeetsRequirement(user.wallet, quest.id, req);
+        const result = await userMeetsRequirement(user, quest.id, req);
         await updateUserQuestStatus(user.wallet, quest.id, result);
       } catch (err: any) {
         logger.error(
@@ -429,11 +454,11 @@ export async function updateAllUserQuests() {
 
 // Check if user meets the quest requirement
 async function userMeetsRequirement(
-  wallet: string,
+  user: { seasonLevel: number; wallet: string },
   questId: number,
   requirement: Requirement
 ): Promise<RequirementCheckResult> {
-  const normalizedWallet = wallet.toLowerCase();
+  const normalizedWallet = user.wallet.toLowerCase();
 
   const quest = await prisma.quest.findUnique({ where: { id: questId } });
 
@@ -566,6 +591,25 @@ async function userMeetsRequirement(
         progress: count,
         target: requirement.minCount,
       };
+    }
+
+    case "SEASON_LEVEL_AT_LEAST": {
+      if (!quest) {
+        logger.warn(
+          `[QuestEngine] Quest ${questId} not found in HBAR_TRANSFER_COUNT check`
+        );
+        return { met: false, progress: 0, target: requirement.minLevel };
+      }
+
+      if (requirement.type === "SEASON_LEVEL_AT_LEAST" && "minLevel" in requirement) {
+        return checkSeasonLevelAtLeast(user, quest, requirement as { type: "SEASON_LEVEL_AT_LEAST"; minLevel: number });
+      }
+
+      logger.warn(
+        `[QuestEngine] Invalid SEASON_LEVEL_AT_LEAST requirement for quest ${questId}: missing minLevel`
+      );
+      
+      return { met: false, progress: 0, target: 1 };
     }
 
     default:
