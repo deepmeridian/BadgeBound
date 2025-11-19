@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 1",
+  "description": "Welcome to Season 1. This badge marks your first step on the BadgeBound journey.",
+  "image": "ipfs://bafybeif7dh6unel4na44yxfiqjndu2opcsswtrw4nngomavahkqdnyrtze",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 1 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Common" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

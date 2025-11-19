@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 2",
+  "description": "You’re warming up. Reaching Season Level 2 proves you’re exploring the BadgeBound questline.",
+  "image": "ipfs://bafybeih7sjlvgxbf2ctd3bodwmyidrzc2aimvrxstmmpaxienpf2xfz2iy",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 2 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Common" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

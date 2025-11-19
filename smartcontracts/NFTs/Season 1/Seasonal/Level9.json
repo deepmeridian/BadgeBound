@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 9",
+  "description": "Right there until the end. Level 9 is reserved for the most dedicated BadgeBound players.",
+  "image": "ipfs://bafybeifjme4mhizuiseixi6iob6ilxzj2wfhe7hirfzlfjfxrc7iovtkgi",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 9 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Epic" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": "Transfer HBAR four times",
+  "description": "Complete at least 4 outgoing HBAR transfers during a week on Hedera Testnet.",
+  "image": "ipfs://bafybeicflb7wrtkw7i7bf2z47tdsaidulbxrrbt3i7honib3xoecyh36se",
+  "attributes": [
+    { "trait_type": "Quest Type", "value": "HBAR_TRANSFER_COUNT" },
+    { "trait_type": "Direction", "value": "OUT" },
+    { "trait_type": "Min Transfers", "value": 4 },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": true },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

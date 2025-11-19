@@ -1,0 +1,15 @@
+{
+  "name": "SaucerSwap LP Holder (3 Days)",
+  "description": "Provide liquidity to the HBAR/USDC pool on SaucerSwap and hold your LP tokens for at least 3 days on Hedera.",
+  "image": "ipfs://bafybeic6a5ekzwilqnstjwmfpcbe5pmmr264uedbhgwamkkrmzkl6v26my",
+  "attributes": [
+    { "trait_type": "Quest Type", "value": "LP_HOLD_DAYS" },
+    { "trait_type": "Protocol", "value": "SaucerSwap" },
+    { "trait_type": "Pool", "value": "HBAR/USDC" },
+    { "trait_type": "Min LP Amount", "value": 10 },
+    { "trait_type": "Hold Days", "value": 3 },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": true },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

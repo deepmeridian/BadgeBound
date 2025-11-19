@@ -1,0 +1,13 @@
+{
+  "name": "First transfer of HBAR on the Hedera network",
+  "description": "Complete your first HBAR transfer on Hedera.",
+  "image": "ipfs://bafybeibiibzn3sjv4mz7ydfi46ylp3mu3u2xzty2v3nwceeejtcpnwb6ua",
+  "attributes": [
+    { "trait_type": "Quest Type", "value": "HBAR_TRANSFER_COUNT" },
+    { "trait_type": "Direction", "value": "OUT" },
+    { "trait_type": "Min Transfers", "value": 1 },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": false },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "name": Transfer HBAR twice a day",
+  "description": "Transfer HBAR twice during the day.",
+  "image": "ipfs://bafybeiajgj2ewyry7gbtnfheibdiol6l3idqmyksgp77ofxkoyarahzpae",
+  "attributes": [
+    { "trait_type": "Quest Type", "value": "HBAR_TRANSFER_COUNT" },
+    { "trait_type": "Direction", "value": "OUT" },
+    { "trait_type": "Min Transfers", "value": 2 },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": true },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

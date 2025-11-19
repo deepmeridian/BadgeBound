@@ -1,0 +1,13 @@
+{
+  "name": "BadgeBound Season 1 – Level 6",
+  "description": "You’ve gone beyond the basics. Level 6 belongs to dedicated BadgeBound grinders.",
+  "image": "ipfs://bafybeic23zlxhmjoj7b7tjmplriunculd73f6ivsegeyjhsj7q7qpj4g2a",
+  "attributes": [
+    { "trait_type": "Season", "value": "Season 1" },
+    { "trait_type": "Season ID", "value": 2 },
+    { "trait_type": "Season Level", "value": 6 },
+    { "trait_type": "Reward Type", "value": "Season Level Badge" },
+    { "trait_type": "Tier", "value": "Rare" },
+    { "trait_type": "Network", "value": "Hedera Testnet" }
+  ]
+}

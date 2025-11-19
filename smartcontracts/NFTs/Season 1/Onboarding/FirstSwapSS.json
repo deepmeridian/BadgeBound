@@ -1,0 +1,13 @@
+{
+  "name": "First Swap on SaucerSwap",
+  "description": "Complete your very first token swap on SaucerSwap to earn this onboarding badge.",
+  "image": "ipfs://bafybeih7ezqk2bnbzmsixzom4mcw35i55kakmfpfawekycgkokeg4y3mly",
+  "attributes": [
+    { "trait_type": "Protocol", "value": "SaucerSwap" },
+    { "trait_type": "Type", "value": "ONBOARDING" },
+    { "trait_type": "Season", "value": 1 },
+    { "trait_type": "Repeatable", "value": false },
+    { "trait_type": "Network", "value": "Hedera Testnet" },
+    { "trait_type": "Difficulty", "value": "Easy" }
+  ]
+}
