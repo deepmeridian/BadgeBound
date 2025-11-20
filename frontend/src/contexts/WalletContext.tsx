@@ -28,9 +28,13 @@ export function WalletProvider({ children }: WalletProviderProps) {
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if wallet is already connected on page load
   useEffect(() => {
-    checkConnection();
+    if (typeof window !== 'undefined') {
+      const shouldAuto = localStorage.getItem('bb_autoConnect') === 'true';
+      if (shouldAuto) {
+        checkConnection();
+      }
+    }
   }, []);
 
   const checkConnection = async () => {
@@ -79,6 +83,10 @@ export function WalletProvider({ children }: WalletProviderProps) {
       await switchToHederaTestnet();
       
       await initializeWallet();
+      // Persist auto-connect preference
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('bb_autoConnect', 'true');
+      }
 
     } catch (err: any) {
       setError(err.message || 'Failed to connect wallet');
@@ -129,6 +137,9 @@ export function WalletProvider({ children }: WalletProviderProps) {
     setSigner(null);
     setChainId(null);
     setError(null);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('bb_autoConnect');
+    }
   };
 
   // Listen for account changes
@@ -138,12 +149,16 @@ export function WalletProvider({ children }: WalletProviderProps) {
         if (accounts.length === 0) {
           disconnect();
         } else {
-          checkConnection();
+          const shouldAuto = typeof window !== 'undefined' && localStorage.getItem('bb_autoConnect') === 'true';
+          if (shouldAuto) {
+            checkConnection();
+          } else {
+            disconnect();
+          }
         }
       };
 
       const handleChainChanged = () => {
-        // Reload the page when chain changes
         window.location.reload();
       };
 

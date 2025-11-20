@@ -200,7 +200,8 @@ function LeaderboardCard({ user }: { user: LeaderboardEntry }) {
 
   return (
     <Card
-      className={`${getRankBgColor(user.rank)} ${getRankBorderStyle(user.rank)} hover:bg-slate-800/70 transition-all p-5`}
+      style={{opacity: 1}}
+      className={`leaderboard-card ${getRankBgColor(user.rank)} ${getRankBorderStyle(user.rank)} hover:bg-slate-800/70 transition-all p-5`}
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-4 flex-1">

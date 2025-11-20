@@ -34,6 +34,24 @@ export async function getUserQuests(wallet: string) {
     update: { lastSeenAt: new Date() },
   });
 
+  const activeSeason = await prisma.season.findFirst({
+    where: { isActive: true },
+    select: { id: true }
+  });
+
+  if (activeSeason) {
+    await prisma.userSeasonStats.upsert({
+      where: { 
+        seasonId_userWallet: { 
+          seasonId: activeSeason.id,
+          userWallet: normalizedWallet 
+        } 
+      },
+      create: { seasonId: activeSeason.id, userWallet: normalizedWallet },
+      update: {},
+    });
+  }
+
   return prisma.userQuest.findMany({
     where: { userWallet: normalizedWallet },
     include: { quest: true },

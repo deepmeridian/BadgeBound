@@ -192,7 +192,7 @@ export async function fetchUserBadges(walletAddress: string, provider: any): Pro
     
     const badges: Badge[] = [];
     
-    // Check tokens 1-25 for ownership and metadata
+    // Check tokens for ownership and metadata
     for (let tokenId = 1; tokenId <= 25; tokenId++) {
       try {
         let owned = false;
@@ -209,11 +209,9 @@ export async function fetchUserBadges(walletAddress: string, provider: any): Pro
           owned = owner.toLowerCase() === walletAddress.toLowerCase();
           tokenExists = true;
         } catch (err: any) {
-          // Token doesn't exist or is not minted yet
           owned = false;
           tokenExists = false;
           
-          // Check if it's specifically a "nonexistent token" error
           if (err.message && err.message.includes('nonexistent token')) {
             console.log(`Token ${tokenId} doesn't exist yet`);
           }
@@ -265,12 +263,11 @@ export async function fetchUserBadges(walletAddress: string, provider: any): Pro
 
 async function fetchMetadata(uri: string): Promise<BadgeMetadata | null> {
   try {
-    // Handle IPFS URIs with multiple gateway fallbacks
     let urls: string[] = [];
     
     if (uri.startsWith('ipfs://')) {
       const hash = uri.substring(7);
-      // Try multiple IPFS gateways for better reliability
+      // Multiple IPFS gateways for better reliability
       urls = [
         `https://gateway.pinata.cloud/ipfs/${hash}`,
         `https://cloudflare-ipfs.com/ipfs/${hash}`,
@@ -284,7 +281,6 @@ async function fetchMetadata(uri: string): Promise<BadgeMetadata | null> {
 
     let lastError: Error | null = null;
 
-    // Try each gateway until one works
     for (const url of urls) {
       try {
         console.log(`Trying to fetch metadata from: ${url}`);
@@ -302,7 +298,6 @@ async function fetchMetadata(uri: string): Promise<BadgeMetadata | null> {
 
         const metadata = await response.json();
         
-        // Convert IPFS image URI if needed
         if (metadata.image && metadata.image.startsWith('ipfs://')) {
           const imageHash = metadata.image.substring(7);
           // Use the same gateway that worked for metadata
@@ -320,7 +315,6 @@ async function fetchMetadata(uri: string): Promise<BadgeMetadata | null> {
       }
     }
 
-    // If all gateways failed, throw the last error
     if (lastError) {
       throw lastError;
     }

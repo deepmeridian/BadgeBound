@@ -590,6 +590,10 @@
     height: calc(var(--spacing) * 32);
   }
 
+  .h-40 {
+    height: calc(var(--spacing) * 40);
+  }
+
   .h-64 {
     height: calc(var(--spacing) * 64);
   }
@@ -632,6 +636,10 @@
 
   .w-20 {
     width: calc(var(--spacing) * 20);
+  }
+
+  .w-30 {
+    width: calc(var(--spacing) * 30);
   }
 
   .w-32 {
@@ -1045,7 +1053,7 @@
 
   @supports (color: color-mix(in lab, red, red)) {
     .bg-slate-900\/50 {
-      background-color: color-mix(in oklab, var(--color-slate-900) 50%, transparent);
+      background-color: color-mix(in oklab, var(--color-slate-900) 40%, transparent);
     }
   }
 
@@ -1065,13 +1073,13 @@
   }
 
   .from-blue-900\/50 {
-    --tw-gradient-from: color-mix(in srgb, oklch(.379 .146 265.522) 50%, transparent);
+    --tw-gradient-from: color-mix(in srgb, oklch(.379 .146 265.522) 40%, transparent);
     --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
   }
 
   @supports (color: color-mix(in lab, red, red)) {
     .from-blue-900\/50 {
-      --tw-gradient-from: color-mix(in oklab, var(--color-blue-900) 50%, transparent);
+      --tw-gradient-from: color-mix(in oklab, var(--color-blue-900) 40%, transparent);
     }
   }
 
@@ -2379,4 +2387,130 @@ html {
 .progress-green [data-slot='progress-indicator'] {
   background-color: #16a34a !important; /* green-600 */
   box-shadow: 0 0 6px rgba(22,163,74,0.6);
+}
+
+/* Landing page background & video (re-added) */
+.landing-root {position:relative;min-height:100vh;display:flex;flex-direction:column;background:#0f172a;}
+.landing-video {position:fixed;top:0;left:0;width:100%;height:100%;overflow:hidden;z-index:0;}
+.landing-video video {width:100%;height:100%;object-fit:cover;object-position:center;filter:brightness(.55) saturate(.9);display:block;}
+@media (prefers-reduced-motion: reduce){.landing-video video {display:none;} .landing-overlay {background:#0f172a;}}
+.landing-overlay {position:absolute;inset:0;pointer-events:none;
+  /* Darken while letting video show through */
+  background:
+    linear-gradient(to bottom,rgba(15,23,42,.1) 0%,rgba(15,23,42,0) 1%,rgba(15,23,42,0.1) 100%),
+    radial-gradient(circle at 30% 30%,rgba(59,130,246,0),rgba(16,23,42,1))
+}
+.landing-bg-video {position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;object-position:center;z-index:0;filter:brightness(.55) saturate(.9);}
+@media (prefers-reduced-motion: reduce){.landing-bg-video {display:none;}}
+
+/* Quest card: smoother, subtler lift + stronger shadow on hover */
+.quest-card {
+  transition: transform 200ms var(--default-transition-timing-function),
+              box-shadow 220ms var(--default-transition-timing-function);
+  transform: translateZ(0);
+}
+.quest-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 10px rgba(0,0,0,0.6);
+}
+
+/* Ensure backdrop blur applies to level reward cards even when opacity is used */
+.level-reward-card {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+.level-reward-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: background .18s var(--default-transition-timing-function), backdrop-filter .18s var(--default-transition-timing-function);
+}
+.level-reward-card > * {
+  position: relative;
+  z-index: 1;
+}
+.level-reward-card.locked::before,
+.level-reward-card[aria-disabled="true"]::before {
+  background: rgba(0,0,0,0.45);
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  backdrop-filter: blur(var(--blur-md));
+}
+
+/* Some locked cards are rendered with opacity utilities (e.g. `opacity-60`) rather than a `locked` class.
+   Also cover that case so the dark blur overlay is applied. */
+.level-reward-card.opacity-60::before {
+  background: rgba(0,0,0,0.45);
+  -webkit-backdrop-filter: blur(var(--blur-md));
+  backdrop-filter: blur(var(--blur-md));
+}
+
+/* Leaderboard list cards: darkened blur overlay to avoid color cast from gradients */
+.leaderboard-card {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+}
+.leaderboard-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: rgba(0,0,0,0.32); /* darken underlying blurred colors */
+  -webkit-backdrop-filter: blur(var(--blur-sm));
+  backdrop-filter: blur(var(--blur-sm));
+  pointer-events: none;
+}
+.leaderboard-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Content readability card */
+.landing-content-card {position:relative;z-index:2;max-width:42rem;border:1px solid rgba(255,255,255,0.08);padding:2.5rem 2.25rem;border-radius:1rem;box-shadow:0 8px 32px -8px rgba(0,0,0,0.65);backdrop-filter:blur(10px) saturate(120%);-webkit-backdrop-filter:blur(10px) saturate(120%);}
+@media (max-width: 960px){.landing-content-card {margin-top:2rem;padding:2rem 1.75rem;}}
+@media (prefers-reduced-transparency: reduce){.landing-content-card {backdrop-filter:none;-webkit-backdrop-filter:none;background:#0f172a;}}
+.landing-content-card h1 {margin-top:0;}
+.landing-content-card:before {content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(59,130,246,0.25) 0%,rgba(99,102,241,0.15) 40%,rgba(15,23,42,0.3) 70%);mix-blend-mode:overlay;opacity:.35;}
+.landing-content-card--solid {background:#0f172a;border:1px solid rgba(255,255,255,0.1);backdrop-filter:none;-webkit-backdrop-filter:none;}
+
+/* Landing page background classes */
+.landing-root {position:relative;min-height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+.landing-video {position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;}
+.landing-video > video {width:100%;height:100%;object-fit:cover;opacity:.55;}
+@media (prefers-reduced-motion: reduce){.landing-video > video {display:none;}}
+
+/* Loading gradient placeholder - moving shimmer/gradient used when content is loading */
+.loading-gradient {
+  position: relative;
+  overflow: hidden;
+  border-radius: .75rem;
+  --g-base: rgba(2,6,23,0.45);
+  --g-sheen-1: rgba(255,255,255,0.06);
+  --g-sheen-2: rgba(255,255,255,0.12);
+  background-color: rgba(2,6,23,0.45);
+  /* stronger moving sheen for visibility across themes */
+  background-image: linear-gradient(90deg,
+    var(--g-base) 0%,
+    var(--g-sheen-1) 22%,
+    var(--g-sheen-2) 50%,
+    var(--g-sheen-1) 78%,
+    var(--g-base) 100%);
+  background-repeat: no-repeat;
+  background-size: 250% 100%;
+  animation: loading-gradient-move 1.4s linear infinite;
+  will-change: background-position;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+@keyframes loading-gradient-move {
+  0% { background-position: 250% 50%; }
+  100% { background-position: -50% 50%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-gradient { animation: none; }
 }

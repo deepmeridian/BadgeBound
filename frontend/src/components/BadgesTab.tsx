@@ -1,4 +1,4 @@
-import { Award, Loader2, RefreshCw } from 'lucide-react';
+import { Award, Loader2, RefreshCw, ExternalLink } from 'lucide-react';
 import { Card } from './ui/card';
 import { useState } from 'react';
 import { Badge } from '../services/api';
@@ -28,8 +28,8 @@ export function BadgesTab({ badges, loading, error, onRefresh }: BadgesTabProps)
           <h1 className="text-4xl text-white mb-2">My Badge Collection</h1>
           <p className="text-slate-400">Loading your badge collection...</p>
         </div>
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+        <div className="py-12 w-full">
+          <div className="loading-gradient w-full h-40 rounded-xl" aria-hidden="true" />
         </div>
       </div>
     );
@@ -88,20 +88,49 @@ export function BadgesTab({ badges, loading, error, onRefresh }: BadgesTabProps)
 function BadgeCard({ badge }: { badge: Badge }) {
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState<string | null>(null);
+  const contractAddress = import.meta.env.VITE_QUEST_BADGES_ADDRESS;
 
-  const handleImageLoad = () => {
-    setImageLoading(false);
-  };
+  const handleImageLoad = () => setImageLoading(false);
+  const handleImageError = () => { setImageError(true); setImageLoading(false); };
 
-  const handleImageError = () => {
-    setImageError(true);
-    setImageLoading(false);
-  };
+  const addToWallet = async () => {
+    if (!contractAddress) return;
+    if (!(window as any).ethereum) {
+      setAddError('No EVM wallet detected');
+      return;
+    }
+    setAdding(true);
+    setAddError(null);
+    try {
+      await (window as any).ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC721',
+          options: {
+            address: contractAddress,
+            tokenId: badge.tokenId.toString(), // MetaMask requires tokenId for ERC721
+            image: badge.metadata.image || undefined,
+            name: badge.metadata.name,
+          },
+        },
+      });
+    } catch (err: any) {
+      // Fallback: open explorer so user can manually import
+      setAddError('Wallet declined. Opening explorer.');
+      const explorerUrl = `https://hashscan.io/testnet/contract/${contractAddress}`;
+      window.open(explorerUrl, '_blank');
+    } finally {
+      setAdding(false);
+    }
+  }; 
 
   return (
     <Card
-      className={`bg-slate-800/50 border-2 p-6 transition-all
-        border-yellow-500 hover:scale-105 hover:shadow-lg cursor-pointer
+      onClick={addToWallet}
+      className={`bg-slate-800/50 backdrop-blur-sm border-2 p-6 transition-all select-none
+        border-yellow-500 hover:scale-105 hover:shadow-lg cursor-pointer relative
       `}
     >
       <div className="flex flex-col items-center text-center space-y-4">
@@ -124,17 +153,26 @@ function BadgeCard({ badge }: { badge: Badge }) {
                 onLoad={handleImageLoad}
                 onError={handleImageError}
                 style={{ display: imageLoading ? 'none' : 'block' }}
+                draggable={false}
               />
             </div>
           ) : (
             <Award className="w-10 h-10 text-white" />
           )}
         </div>
-
         <div className="space-y-2">
-          <h3 className="text-white">{badge.metadata.name}</h3>
-          <p className="text-sm text-slate-400">{badge.metadata.description}</p>
+          <h3 className="text-white flex items-center justify-center gap-2">
+            {badge.metadata.name}
+            <ExternalLink className="w-4 h-4 opacity-60" />
+          </h3>
+          <p className="text-sm text-slate-400 line-clamp-3">{badge.metadata.description}</p>
         </div>
+        {adding && (
+          <div className="text-xs text-blue-400 animate-pulse">Adding to wallet…</div>
+        )}
+        {addError && !adding && (
+          <div className="text-[10px] text-yellow-400 max-w-[9rem] leading-tight">{addError}</div>
+        )}
       </div>
     </Card>
   );

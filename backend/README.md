@@ -248,3 +248,7 @@ Logs are written to:
 - [Prisma Schema Reference](./prisma/schema.prisma)
 - [Smart Contract Documentation](../smartcontracts/README.md) 
 - [Hedera Mirror Node API](https://docs.hedera.com/hedera/sdks-and-apis/rest-api)
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file in the repository root for details.
