@@ -22,7 +22,7 @@ export function QuestsTab({ walletAddress, userQuests, baseQuests, currentUserLe
   const [dailyResetText, setDailyResetText] = useState<string>('');
   const [weeklyResetText, setWeeklyResetText] = useState<string>('');
 
-  const currentLevel = currentUserLevel ?? 0;
+  const currentLevel = currentUserLevel ?? 1;
   const currentXP = currentUserXP ?? 0;
   const nextLevelXP = 1000;
   const previousLevelXP = 0;

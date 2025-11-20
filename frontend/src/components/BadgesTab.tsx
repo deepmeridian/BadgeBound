@@ -44,7 +44,7 @@ export function BadgesTab({ badges, loading, error, onRefresh }: BadgesTabProps)
         </div>
         <Card className="bg-red-900/20 border-red-500/50 p-6">
           <p className="text-red-300">Unable to load badge data. Please make sure you're connected to Hedera testnet.</p>
-          <button 
+          <button
             onClick={handleRefresh}
             disabled={refreshing}
             className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
@@ -66,7 +66,7 @@ export function BadgesTab({ badges, loading, error, onRefresh }: BadgesTabProps)
             Collected {earnedCount} badges
           </p>
         </div>
-        <button 
+        <button
           onClick={handleRefresh}
           disabled={loading || refreshing}
           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-600 text-white rounded-lg transition-colors flex items-center gap-2"
@@ -76,11 +76,20 @@ export function BadgesTab({ badges, loading, error, onRefresh }: BadgesTabProps)
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {badges.map((badge) => (
-          <BadgeCard key={badge.tokenId} badge={badge} />
-        ))}
-      </div>
+      {badges.filter(b => b.owned).length === 0 ? (
+        <Card className="bg-slate-800/50 border-slate-700 p-6">
+          <div className="space-y-2">
+            <h3 className="text-white">No badges collected yet</h3>
+            <p className="text-sm text-slate-400">You don't own any badges. Earn badges by completing quests.</p>
+          </div>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {badges.filter(b => b.owned).map((badge) => (
+            <BadgeCard key={badge.tokenId} badge={badge} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -124,7 +133,7 @@ function BadgeCard({ badge }: { badge: Badge }) {
     } finally {
       setAdding(false);
     }
-  }; 
+  };
 
   return (
     <Card
