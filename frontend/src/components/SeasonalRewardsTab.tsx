@@ -3,7 +3,7 @@ import { Lock, CheckCircle, RefreshCw } from 'lucide-react';
 import { Card } from './ui/card';
 import { Button } from './ui/button';
 import { Progress } from './ui/progress';
-import { UserQuest, claimQuest, Season } from '../services/api';
+import { UserQuest, claimQuest, Season, fetchQuests, Quest } from '../services/api';
 
 interface SeasonalRewardsTabProps {
   walletAddress: string;
@@ -21,6 +21,7 @@ interface LevelReward {
   description: string;
   locked: boolean;
   claimed: boolean;
+  claimable?: boolean;
   questId?: number;
 }
 
@@ -65,13 +66,63 @@ export function SeasonalRewardsTab({ walletAddress, userQuests, currentUserLevel
     };
   }, [season?.endAt]);
 
-  const currentLevel = currentUserLevel ?? 0;
+  const currentLevel = currentUserLevel ?? 1;
   const currentXP = currentUserXP ?? 0;
   const nextLevelXP = 1000;
   const previousLevelXP = 0;
   const progressPercent = nextLevelXP > previousLevelXP ? ((currentXP - previousLevelXP) / (nextLevelXP - previousLevelXP)) * 100 : 0;
 
-  const seasonalQuests = useMemo(() => userQuests.filter(uq => uq.quest?.type === 'SEASONAL'), [userQuests]);
+  const [fetchedQuests, setFetchedQuests] = useState<Quest[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const qs = await fetchQuests();
+        if (cancelled) return;
+        setFetchedQuests(qs || []);
+      } catch (e) {
+        console.warn('Failed to fetch quests metadata', e);
+        if (!cancelled) setFetchedQuests([]);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [season?.id]);
+
+  const seasonalQuests = useMemo(() => {
+    const userByQuestId = new Map<number, UserQuest>();
+    for (const uq of userQuests) {
+      const qid = uq.quest?.id ?? (uq as any).questId;
+      if (typeof qid === 'number') userByQuestId.set(qid, uq);
+    }
+
+    const combined: UserQuest[] = [];
+
+    for (const uq of userQuests) {
+      if (uq.quest?.type === 'SEASONAL') combined.push(uq);
+    }
+
+    const seasonIdNum = season ? Number((season as any).id) : undefined;
+    for (const q of fetchedQuests) {
+      if (q.type !== 'SEASONAL') continue;
+      if (seasonIdNum && typeof q.seasonId === 'number' && q.seasonId !== seasonIdNum) continue;
+      if (userByQuestId.has(q.id)) continue;
+
+      const synthetic: UserQuest = {
+        questId: q.id,
+        status: 'NOT_STARTED',
+        wallet: walletAddress ?? '',
+        completion: 0,
+        completionPercent: 0,
+        progress: null,
+        target: null,
+        quest: q,
+      };
+      combined.push(synthetic);
+    }
+
+    return combined;
+  }, [userQuests, fetchedQuests, season, walletAddress]);
 
   const levelRewards: LevelReward[] = useMemo(() => {
     const arr: LevelReward[] = [];
@@ -87,6 +138,7 @@ export function SeasonalRewardsTab({ walletAddress, userQuests, currentUserLevel
         description: q?.quest?.description || `Requires Level ${level}`,
         locked: currentLevel < level,
         claimed: q?.status === 'CLAIMED',
+        claimable: q?.status === 'COMPLETED',
         questId: q?.quest?.id,
       });
     }
@@ -263,8 +315,6 @@ function HorizontalWheelScroller({ className, children }: { className?: string; 
 }
 
 function LevelRewardCard({ reward, badgeImage, isClaiming, onClaim }: { reward: LevelReward; badgeImage: string | null; isClaiming: boolean; onClaim: () => void | Promise<void> }) {
-  const isUnlocked = !reward.locked;
-
   return (
     <Card
       className={`level-reward-card flex-shrink-0 w-64 p-6 will-change-transform transition-all duration-300 ease-out hover:scale-105 backdrop-blur-sm ${
@@ -314,22 +364,18 @@ function LevelRewardCard({ reward, badgeImage, isClaiming, onClaim }: { reward: 
           </p>
         </div>
 
-        {/* Action Button */}
+        {/* Action Button: only allow claiming when the quest itself is COMPLETED (not based on level) */}
         {reward.claimed ? (
           <div className="flex items-center gap-2 text-green-400 text-sm">
             <CheckCircle className="w-4 h-4" />
             Claimed
           </div>
-        ) : reward.locked ? (
-          <Button size="sm" disabled className="w-full bg-slate-700 text-slate-500">
-            Locked
-          </Button>
-        ) : isUnlocked ? (
+        ) : reward.claimable ? (
           <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white" onClick={onClaim} disabled={isClaiming}>
             {isClaiming ? 'Claiming…' : 'Claim Badge'}
           </Button>
         ) : (
-          <Button size="sm" disabled className="w-full bg-slate-700 text-slate-400">
+          <Button size="sm" disabled className="w-full bg-slate-700 text-slate-500">
             Locked
           </Button>
         )}
