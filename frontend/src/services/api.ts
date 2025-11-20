@@ -41,7 +41,7 @@ export async function fetchLeaderboard(limit: number = 50): Promise<LeaderboardR
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching leaderboard:', error);
+    //console.error('Error fetching leaderboard:', error);
     throw error;
   }
 }
@@ -113,7 +113,7 @@ export async function fetchQuests(): Promise<Quest[]> {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching quests:', error);
+    //console.error('Error fetching quests:', error);
     throw error;
   }
 }
@@ -134,7 +134,7 @@ export async function fetchUserQuests(walletAddress: string): Promise<UserQuest[
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching user quests:', error);
+    //console.error('Error fetching user quests:', error);
     throw error;
   }
 }
@@ -157,7 +157,7 @@ export async function claimQuest(questId: number, walletAddress: string): Promis
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error claiming quest:', error);
+    //console.error('Error claiming quest:', error);
     throw error;
   }
 }
@@ -213,7 +213,7 @@ export async function fetchUserBadges(walletAddress: string, provider: any): Pro
           tokenExists = false;
           
           if (err.message && err.message.includes('nonexistent token')) {
-            console.log(`Token ${tokenId} doesn't exist yet`);
+            //console.log(`Token ${tokenId} doesn't exist yet`);
           }
         }
 
@@ -222,15 +222,15 @@ export async function fetchUserBadges(walletAddress: string, provider: any): Pro
           try {
             const tokenURI = await contract.tokenURI(tokenId);
             if (tokenURI) {
-              console.log(`Fetching metadata for token ${tokenId} from:`, tokenURI);
+              //console.log(`Fetching metadata for token ${tokenId} from:`, tokenURI);
               const metadataResponse = await fetchMetadata(tokenURI);
               if (metadataResponse) {
                 metadata = metadataResponse;
-                console.log(`Successfully loaded metadata for token ${tokenId}:`, metadata.name);
+                //console.log(`Successfully loaded metadata for token ${tokenId}:`, metadata.name);
               }
             }
           } catch (err) {
-            console.warn(`Failed to fetch metadata for token ${tokenId}:`, err);
+            //console.warn(`Failed to fetch metadata for token ${tokenId}:`, err);
           }
 
           badges.push({
@@ -240,7 +240,7 @@ export async function fetchUserBadges(walletAddress: string, provider: any): Pro
           });
         }
       } catch (err) {
-        console.warn(`Error checking token ${tokenId}:`, err);
+        //console.warn(`Error checking token ${tokenId}:`, err);
         // Add placeholder badge even if there's an error
         badges.push({
           tokenId,
@@ -256,7 +256,7 @@ export async function fetchUserBadges(walletAddress: string, provider: any): Pro
 
     return badges;
   } catch (error) {
-    console.error('Error fetching user badges:', error);
+    //console.error('Error fetching user badges:', error);
     throw error;
   }
 }
@@ -283,7 +283,7 @@ async function fetchMetadata(uri: string): Promise<BadgeMetadata | null> {
 
     for (const url of urls) {
       try {
-        console.log(`Trying to fetch metadata from: ${url}`);
+        //console.log(`Trying to fetch metadata from: ${url}`);
         
         const response = await fetch(url, {
           method: 'GET',
@@ -305,11 +305,11 @@ async function fetchMetadata(uri: string): Promise<BadgeMetadata | null> {
           metadata.image = `${workingGateway}/ipfs/${imageHash}`;
         }
 
-        console.log(`Successfully fetched metadata from ${url}:`, metadata);
+        //console.log(`Successfully fetched metadata from ${url}:`, metadata);
         return metadata;
         
       } catch (error) {
-        console.warn(`Failed to fetch from ${url}:`, error);
+        //console.warn(`Failed to fetch from ${url}:`, error);
         lastError = error as Error;
         continue;
       }
@@ -321,7 +321,7 @@ async function fetchMetadata(uri: string): Promise<BadgeMetadata | null> {
 
     return null;
   } catch (error) {
-    console.warn('Failed to fetch metadata from all gateways:', error);
+    //console.warn('Failed to fetch metadata from all gateways:', error);
     return null;
   }
 }

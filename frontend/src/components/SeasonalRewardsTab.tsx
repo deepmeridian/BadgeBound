@@ -82,7 +82,7 @@ export function SeasonalRewardsTab({ walletAddress, userQuests, currentUserLevel
         if (cancelled) return;
         setFetchedQuests(qs || []);
       } catch (e) {
-        console.warn('Failed to fetch quests metadata', e);
+        //console.warn('Failed to fetch quests metadata', e);
         if (!cancelled) setFetchedQuests([]);
       }
     })();
@@ -199,7 +199,7 @@ export function SeasonalRewardsTab({ walletAddress, userQuests, currentUserLevel
       await claimQuest(questId, walletAddress);
       await onRefresh();
     } catch (e) {
-      console.error('Failed to claim seasonal reward', e);
+      //console.error('Failed to claim seasonal reward', e);
     } finally {
       setClaimingId(null);
     }

@@ -18,7 +18,7 @@ export function LandingPage({ onConnectWallet }: LandingPageProps) {
       await connectWallet();
       onConnectWallet();
     } catch (err) {
-      console.error('Failed to connect wallet:', err);
+      //console.error('Failed to connect wallet:', err);
     }
   };
 
@@ -67,7 +67,7 @@ export function LandingPage({ onConnectWallet }: LandingPageProps) {
                 <Wallet className="w-5 h-5" />
                 {isConnecting ? 'Connecting...' : 'Connect Wallet'}
               </Button>
-              {error && <p className="text-red-400 text-sm mt-2">{error}</p>}
+              {error && <p className="text-white text-sm mt-2">{error}</p>}
             </div>
             </div>
           </div>
