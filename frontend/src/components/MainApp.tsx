@@ -67,7 +67,7 @@ export function MainApp({ walletAddress, onDisconnect }: MainAppProps) {
       const userBadges = await fetchUserBadges(walletAddress, provider);
       setBadges(userBadges);
     } catch (err) {
-      console.error('Failed to load badges:', err);
+      //console.error('Failed to load badges:', err);
       setBadgesError('Failed to load badge data');
     } finally {
       setBadgesLoading(false);
@@ -98,7 +98,7 @@ export function MainApp({ walletAddress, onDisconnect }: MainAppProps) {
       }
       
     } catch (err) {
-      console.error('Failed to load leaderboard:', err);
+      //console.error('Failed to load leaderboard:', err);
       setLeaderboardError('Failed to load leaderboard data');
     } finally {
       setLeaderboardLoading(false);
@@ -114,7 +114,7 @@ export function MainApp({ walletAddress, onDisconnect }: MainAppProps) {
       const quests = await fetchUserQuests(walletAddress);
       setUserQuests(quests);
     } catch (err) {
-      console.error('Failed to load quests:', err);
+      //console.error('Failed to load quests:', err);
       setQuestsError('Failed to load quest data');
     } finally {
       setQuestsLoading(false);
@@ -128,7 +128,7 @@ export function MainApp({ walletAddress, onDisconnect }: MainAppProps) {
       const quests = await fetchQuests();
       setBaseQuests(quests);
     } catch (err) {
-      console.error('Failed to load base quests:', err);
+      //console.error('Failed to load base quests:', err);
       setBaseQuestsError('Failed to load quests list');
     } finally {
       setBaseQuestsLoading(false);

@@ -45,7 +45,7 @@ export function WalletProvider({ children }: WalletProviderProps) {
           await initializeWallet();
         }
       } catch (err) {
-        console.error('Error checking wallet connection:', err);
+        //console.error('Error checking wallet connection:', err);
       }
     }
   };

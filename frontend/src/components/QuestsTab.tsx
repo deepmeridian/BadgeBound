@@ -56,7 +56,7 @@ export function QuestsTab({ walletAddress, userQuests, baseQuests, currentUserLe
       await claimQuest(questId, walletAddress);
       await onRefresh();
     } catch (e) {
-      console.error('Failed to claim quest', e);
+      //console.error('Failed to claim quest', e);
     } finally {
       setClaimingId(null);
     }
