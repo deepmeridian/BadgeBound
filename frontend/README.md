@@ -31,6 +31,7 @@ npm install
 ```
 VITE_API_URL=http://localhost:4000
 VITE_QUEST_BADGES_ADDRESS=0x...
+VITE_HEDERA_NETWORK=testnet
 ```
 
 The frontend expects an API backend reachable at `VITE_API_URL`. Adjust that to your local backend. (see `.env.example`)

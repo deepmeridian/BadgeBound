@@ -70,13 +70,13 @@ export function MainApp({ walletAddress, onDisconnect }: MainAppProps) {
       return;
     }
     
-    console.log('[BadgesTab] Loading badges for wallet:', walletAddress);
+    //console.log('[BadgesTab] Loading badges for wallet:', walletAddress);
     try {
       setBadgesLoading(true);
       setBadgesError(null);
       // Pass userQuests so we know which token IDs to check
       const userBadges = await fetchUserBadges(walletAddress, provider, userQuests);
-      console.log('[BadgesTab] Successfully loaded', userBadges.length, 'badges');
+      //console.log('[BadgesTab] Successfully loaded', userBadges.length, 'badges');
       setBadges(userBadges);
     } catch (err) {
       console.error('[BadgesTab] Failed to load badges:', err);
