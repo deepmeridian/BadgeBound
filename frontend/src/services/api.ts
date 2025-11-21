@@ -87,6 +87,7 @@ export interface UserQuest {
   lastClaimedPeriodKey?: string;
   claimedAt?: string;
   quest: Quest;
+  tokenId?: number;
 }
 
 export interface ClaimQuestResponse {
@@ -185,78 +186,81 @@ const ERC721_ABI = [
   'function balanceOf(address owner) external view returns (uint256)',
 ];
 
-export async function fetchUserBadges(walletAddress: string, provider: any): Promise<Badge[]> {
+/**
+ * Fetch badges for a user based on their claimed quests
+ * This is much faster than checking tokens 1-25 blindly
+ */
+export async function fetchUserBadges(
+  walletAddress: string, 
+  provider: any, 
+  userQuests: UserQuest[]
+): Promise<Badge[]> {
+  console.log('[fetchUserBadges] Starting for wallet:', walletAddress);
+  
   try {
     const { ethers } = await import('ethers');
     const contract = new ethers.Contract(VITE_QUEST_BADGES_ADDRESS, ERC721_ABI, provider);
     
     const badges: Badge[] = [];
     
-    // Check tokens for ownership and metadata
-    for (let tokenId = 1; tokenId <= 25; tokenId++) {
+    // Get token IDs from claimed quests that have badge rewards
+    const claimedQuestsWithBadges = userQuests
+      .filter(uq => uq.status === 'CLAIMED' && uq.tokenId)
+      .map(uq => ({
+        tokenId: uq.tokenId!,
+        quest: uq.quest,
+      }));
+    
+    console.log(`[fetchUserBadges] Found ${claimedQuestsWithBadges.length} claimed quests with badges`);
+    
+    if (claimedQuestsWithBadges.length === 0) {
+      console.log('[fetchUserBadges] No badges to check');
+      return badges;
+    }
+    
+    // Check each badge token
+    for (const { tokenId, quest } of claimedQuestsWithBadges) {
+      console.log(`[fetchUserBadges] Checking token ${tokenId} for quest: ${quest.title}`);
+      
       try {
-        let owned = false;
-        let tokenExists = false;
-        let metadata: BadgeMetadata = {
-          name: `Badge #${tokenId}`,
-          description: 'Badge description not available',
-          image: '',
+        // Verify ownership on-chain
+        const owner = await contract.ownerOf(tokenId);
+        const owned = owner.toLowerCase() === walletAddress.toLowerCase();
+        
+        if (!owned) {
+          console.warn(`[fetchUserBadges] Token ${tokenId} exists but not owned by user (owner: ${owner})`);
+          continue;
+        }
+        
+        console.log(`[fetchUserBadges] Token ${tokenId} confirmed owned by user`);
+        
+        // Create metadata from quest info (no need to fetch from IPFS)
+        const metadata: BadgeMetadata = {
+          name: quest.title,
+          description: quest.description,
+          image: '', // Could add IPFS images later if needed
         };
-
-        // Check if token exists and get owner
-        try {
-          const owner = await contract.ownerOf(tokenId);
-          owned = owner.toLowerCase() === walletAddress.toLowerCase();
-          tokenExists = true;
-        } catch (err: any) {
-          owned = false;
-          tokenExists = false;
-          
-          if (err.message && err.message.includes('nonexistent token')) {
-            //console.log(`Token ${tokenId} doesn't exist yet`);
-          }
-        }
-
-        // Only try to get metadata if the token exists
-        if (tokenExists) {
-          try {
-            const tokenURI = await contract.tokenURI(tokenId);
-            if (tokenURI) {
-              //console.log(`Fetching metadata for token ${tokenId} from:`, tokenURI);
-              const metadataResponse = await fetchMetadata(tokenURI);
-              if (metadataResponse) {
-                metadata = metadataResponse;
-                //console.log(`Successfully loaded metadata for token ${tokenId}:`, metadata.name);
-              }
-            }
-          } catch (err) {
-            //console.warn(`Failed to fetch metadata for token ${tokenId}:`, err);
-          }
-
-          badges.push({
-            tokenId,
-            metadata,
-            owned,
-          });
-        }
-      } catch (err) {
-        //console.warn(`Error checking token ${tokenId}:`, err);
-        // Add placeholder badge even if there's an error
+        
         badges.push({
           tokenId,
-          metadata: {
-            name: `Badge #${tokenId}`,
-            description: 'Error loading badge information',
-            image: '',
-          },
-          owned: false,
+          metadata,
+          owned: true,
         });
+        
+      } catch (err: any) {
+        if (err.message && err.message.includes('nonexistent token')) {
+          console.warn(`[fetchUserBadges] Token ${tokenId} doesn't exist yet (quest marked as claimed but badge not minted)`);
+        } else {
+          console.error(`[fetchUserBadges] Error checking token ${tokenId}:`, err);
+        }
       }
     }
-
+    
+    console.log(`[fetchUserBadges] Returning ${badges.length} badges`);
     return badges;
+    
   } catch (error) {
-    //console.error('Error fetching user badges:', error);
+    console.error('[fetchUserBadges] Error:', error);
     throw error;
   }
 }
