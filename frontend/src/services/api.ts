@@ -1,5 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const VITE_QUEST_BADGES_ADDRESS = import.meta.env.VITE_QUEST_BADGES_ADDRESS;
+const VITE_HEDERA_NETWORK = import.meta.env.VITE_HEDERA_NETWORK;
 
 export interface LeaderboardEntry {
   rank: number;
@@ -60,7 +61,7 @@ export interface QuestRequirement {
 
 export interface QuestReward {
   xp: number;
-  badgeTokenId?: number;
+  badgeUri?: string; // IPFS URI for badge metadata
   [key: string]: any;
 }
 
@@ -188,19 +189,20 @@ const ERC721_ABI = [
 
 /**
  * Fetch badges for a user based on their claimed quests
- * This is much faster than checking tokens 1-25 blindly
+ * For testnet: Uses quest.reward.badgeUri to skip slow contract calls
+ * For production: Verifies ownership on-chain via contract
  */
 export async function fetchUserBadges(
   walletAddress: string, 
   provider: any, 
   userQuests: UserQuest[]
 ): Promise<Badge[]> {
-  console.log('[fetchUserBadges] Starting for wallet:', walletAddress);
+  //console.log('[fetchUserBadges] Starting for wallet:', walletAddress);
+  //console.log('[fetchUserBadges] Network:', VITE_HEDERA_NETWORK);
+  
+  const isTestnet = VITE_HEDERA_NETWORK === 'testnet';
   
   try {
-    const { ethers } = await import('ethers');
-    const contract = new ethers.Contract(VITE_QUEST_BADGES_ADDRESS, ERC721_ABI, provider);
-    
     const badges: Badge[] = [];
     
     // Get token IDs from claimed quests that have badge rewards
@@ -210,57 +212,99 @@ export async function fetchUserBadges(
         tokenId: uq.tokenId!,
         quest: uq.quest,
       }));
-    
-    console.log(`[fetchUserBadges] Found ${claimedQuestsWithBadges.length} claimed quests with badges`);
+
+    //console.log(`[fetchUserBadges] Found ${claimedQuestsWithBadges.length} claimed quests with badges`);
     
     if (claimedQuestsWithBadges.length === 0) {
-      console.log('[fetchUserBadges] No badges to check');
+      //console.log('[fetchUserBadges] No badges to check');
       return badges;
+    }
+    
+    let contract;
+    if (!isTestnet) {
+      const { ethers } = await import('ethers');
+      contract = new ethers.Contract(VITE_QUEST_BADGES_ADDRESS, ERC721_ABI, provider);
+      //console.log('[fetchUserBadges] Contract initialized for on-chain verification');
     }
     
     // Check each badge token
     for (const { tokenId, quest } of claimedQuestsWithBadges) {
-      console.log(`[fetchUserBadges] Checking token ${tokenId} for quest: ${quest.title}`);
+      //console.log(`[fetchUserBadges] Processing token ${tokenId} for quest: ${quest.title}`);
       
       try {
-        // Verify ownership on-chain
-        const owner = await contract.ownerOf(tokenId);
-        const owned = owner.toLowerCase() === walletAddress.toLowerCase();
-        
-        if (!owned) {
-          console.warn(`[fetchUserBadges] Token ${tokenId} exists but not owned by user (owner: ${owner})`);
-          continue;
-        }
-        
-        console.log(`[fetchUserBadges] Token ${tokenId} confirmed owned by user`);
-        
-        // Create metadata from quest info (no need to fetch from IPFS)
-        const metadata: BadgeMetadata = {
+        let metadata: BadgeMetadata = {
           name: quest.title,
           description: quest.description,
-          image: '', // Could add IPFS images later if needed
+          image: '',
         };
-        
-        badges.push({
-          tokenId,
-          metadata,
-          owned: true,
-        });
+
+        if (isTestnet) {
+          if (quest.reward.badgeUri) {
+            //console.log(`[fetchUserBadges] [TESTNET] Fetching metadata from quest.reward.badgeUri:`, quest.reward.badgeUri);
+            try {
+              const fetchedMetadata = await fetchMetadata(quest.reward.badgeUri);
+              if (fetchedMetadata) {
+                metadata = fetchedMetadata;
+                //console.log(`[fetchUserBadges] Successfully loaded metadata for token ${tokenId}`);
+              }
+            } catch (err) {
+              //console.warn(`[fetchUserBadges] Failed to fetch metadata from badgeUri, using quest info:`, err);
+            }
+          }
+          
+          badges.push({
+            tokenId,
+            metadata,
+            owned: true, // Trust the backend in testnet mode
+          });
+        } 
+        // Production mode: Verify ownership on-chain
+        else {
+          //console.log(`[fetchUserBadges] [PRODUCTION] Verifying ownership on-chain for token ${tokenId}`);
+          
+          // Verify ownership
+          const owner = await contract!.ownerOf(tokenId);
+          const owned = owner.toLowerCase() === walletAddress.toLowerCase();
+          
+          if (!owned) {
+            //console.warn(`[fetchUserBadges] Token ${tokenId} exists but not owned by user (owner: ${owner})`);
+            continue;
+          }
+          
+          console.log(`[fetchUserBadges] Token ${tokenId} confirmed owned by user`);
+          
+          // Fetch metadata from contract
+          try {
+            const tokenURI = await contract!.tokenURI(tokenId);
+            if (tokenURI) {
+              //console.log(`[fetchUserBadges] Fetching metadata for token ${tokenId} from:`, tokenURI);
+              const fetchedMetadata = await fetchMetadata(tokenURI);
+              if (fetchedMetadata) {
+                metadata = fetchedMetadata;
+                //console.log(`[fetchUserBadges] Successfully loaded metadata for token ${tokenId}`);
+              }
+            }
+          } catch (err) {
+            //console.warn(`[fetchUserBadges] Failed to fetch metadata for token ${tokenId}, using quest info:`, err);
+          }
+          
+          badges.push({
+            tokenId,
+            metadata,
+            owned: true,
+          });
+        }
         
       } catch (err: any) {
-        if (err.message && err.message.includes('nonexistent token')) {
-          console.warn(`[fetchUserBadges] Token ${tokenId} doesn't exist yet (quest marked as claimed but badge not minted)`);
-        } else {
-          console.error(`[fetchUserBadges] Error checking token ${tokenId}:`, err);
-        }
+        //console.error(`[fetchUserBadges] Error processing token ${tokenId}:`, err);
       }
     }
     
-    console.log(`[fetchUserBadges] Returning ${badges.length} badges`);
+    //console.log(`[fetchUserBadges] Returning ${badges.length} badges`);
     return badges;
     
   } catch (error) {
-    console.error('[fetchUserBadges] Error:', error);
+    //console.error('[fetchUserBadges] Error:', error);
     throw error;
   }
 }
