@@ -13,6 +13,8 @@
 
 [Overview](#overview) • [Features](#features) • [Architecture](#architecture) • [Getting Started](#getting-started) • [API Documentation](#api-documentation) • [How It Works](#how-it-works) • [License](#license)
 
+### Live Frontend (Testnet): https://badgebound.vercel.app
+
 </div>
 
 ---
@@ -101,6 +103,17 @@ BadgeBound consists of three main components working together seamlessly:
 │            │  │     API     │  │ (ERC-721)    │
 └────────────┘  └─────────────┘  └──────────────┘
 ```
+
+### Why ERC-721 on Hedera?
+
+BadgeBound uses Hedera's EVM Smart Contract Service to deploy a fully
+custom ERC-721 contract (`QuestBadges.sol`). Hedera supports standard
+Solidity smart contracts, allowing us to implement rich quest mechanics,
+custom token URIs, and badge logic that would not be
+possible with HTS alone.
+
+This gives BadgeBound more flexibility and future extensibility while
+still benefiting from Hedera's low fees and fast finality.
 
 ### Component Details
 
