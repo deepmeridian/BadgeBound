@@ -37,10 +37,46 @@ export function WalletProvider({ children }: WalletProviderProps) {
     }
   }, []);
 
-  const checkConnection = async () => {
+  const getWalletProvider = () => {
+    // Check for HashPack first in dedicated namespace
+    if (typeof (window as any).hashpack !== 'undefined') {
+      console.log('Found HashPack in window.hashpack');
+      return (window as any).hashpack;
+    }
+    
+    // Check if multiple providers exist (MetaMask + HashPack scenario)
+    if (typeof window.ethereum !== 'undefined' && (window.ethereum as any).providers) {
+      console.log('Multiple providers detected:', (window.ethereum as any).providers);
+      // Look for HashPack in providers array
+      const hashpackProvider = (window.ethereum as any).providers.find(
+        (provider: any) => provider.isHashPack
+      );
+      if (hashpackProvider) {
+        console.log('Found HashPack in providers array');
+        return hashpackProvider;
+      }
+    }
+    
+    // Check if single provider is HashPack
+    if (typeof window.ethereum !== 'undefined' && (window.ethereum as any).isHashPack) {
+      console.log('Single provider is HashPack');
+      return window.ethereum;
+    }
+    
+    // Fallback to default ethereum provider
     if (typeof window.ethereum !== 'undefined') {
+      console.log('Using default ethereum provider');
+      return window.ethereum;
+    }
+    
+    return null;
+  };
+
+  const checkConnection = async () => {
+    const provider = getWalletProvider();
+    if (provider) {
       try {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        const accounts = await provider.request({ method: 'eth_accounts' });
         if (accounts.length > 0) {
           await initializeWallet();
         }
@@ -51,11 +87,12 @@ export function WalletProvider({ children }: WalletProviderProps) {
   };
 
   const initializeWallet = async () => {
-    if (typeof window.ethereum === 'undefined') {
-      throw new Error('No wallet found. Please install MetaMask or another EVM wallet.');
+    const provider = getWalletProvider();
+    if (!provider) {
+      throw new Error('No wallet found. Please install HashPack or MetaMask.');
     }
 
-    const browserProvider = new ethers.BrowserProvider(window.ethereum);
+    const browserProvider = new ethers.BrowserProvider(provider);
     const walletSigner = await browserProvider.getSigner();
     const userAddress = await walletSigner.getAddress();
     const network = await browserProvider.getNetwork();
@@ -72,12 +109,13 @@ export function WalletProvider({ children }: WalletProviderProps) {
     setError(null);
 
     try {
-      if (typeof window.ethereum === 'undefined') {
-        throw new Error('No wallet found. Please install MetaMask or another EVM wallet.');
+      const provider = getWalletProvider();
+      if (!provider) {
+        throw new Error('No wallet found. Please install HashPack or MetaMask.');
       }
 
       // Request account access
-      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await provider.request({ method: 'eth_requestAccounts' });
       
       // Switch to Hedera testnet if not already connected
       await switchToHederaTestnet();
@@ -97,18 +135,21 @@ export function WalletProvider({ children }: WalletProviderProps) {
   };
 
   const switchToHederaTestnet = async () => {
+    const provider = getWalletProvider();
+    if (!provider) return;
+    
     const hederaTestnetChainId = '0x128'; // 296 in hex (Hedera testnet)
     
     try {
       // Try to switch to Hedera testnet
-      await window.ethereum!.request({
+      await provider.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: hederaTestnetChainId }],
       });
     } catch (switchError: any) {
       // If the network doesn't exist, add it
       if (switchError.code === 4902) {
-        await window.ethereum!.request({
+        await provider.request({
           method: 'wallet_addEthereumChain',
           params: [
             {
@@ -144,7 +185,8 @@ export function WalletProvider({ children }: WalletProviderProps) {
 
   // Listen for account changes
   useEffect(() => {
-    if (typeof window.ethereum !== 'undefined') {
+    const provider = getWalletProvider();
+    if (provider) {
       const handleAccountsChanged = (accounts: string[]) => {
         if (accounts.length === 0) {
           disconnect();
@@ -162,13 +204,13 @@ export function WalletProvider({ children }: WalletProviderProps) {
         window.location.reload();
       };
 
-      window.ethereum.on('accountsChanged', handleAccountsChanged);
-      window.ethereum.on('chainChanged', handleChainChanged);
+      provider.on('accountsChanged', handleAccountsChanged);
+      provider.on('chainChanged', handleChainChanged);
 
       return () => {
-        if (window.ethereum) {
-          window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
-          window.ethereum.removeListener('chainChanged', handleChainChanged);
+        if (provider) {
+          provider.removeListener('accountsChanged', handleAccountsChanged);
+          provider.removeListener('chainChanged', handleChainChanged);
         }
       };
     }
