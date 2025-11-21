@@ -51,23 +51,35 @@ export function MainApp({ walletAddress, onDisconnect }: MainAppProps) {
   // Load data on component mount
   useEffect(() => {
     if (walletAddress && provider) {
-      loadBadges();
       loadLeaderboard();
       loadAllQuests();
       loadUserQuests();
     }
   }, [walletAddress, provider]);
 
+  // Load badges when userQuests are available
+  useEffect(() => {
+    if (walletAddress && provider && userQuests.length > 0) {
+      loadBadges();
+    }
+  }, [userQuests]);
+
   const loadBadges = async () => {
-    if (!walletAddress || !provider) return;
+    if (!walletAddress || !provider) {
+      console.warn('[BadgesTab] No wallet or provider');
+      return;
+    }
     
+    console.log('[BadgesTab] Loading badges for wallet:', walletAddress);
     try {
       setBadgesLoading(true);
       setBadgesError(null);
-      const userBadges = await fetchUserBadges(walletAddress, provider);
+      // Pass userQuests so we know which token IDs to check
+      const userBadges = await fetchUserBadges(walletAddress, provider, userQuests);
+      console.log('[BadgesTab] Successfully loaded', userBadges.length, 'badges');
       setBadges(userBadges);
     } catch (err) {
-      //console.error('Failed to load badges:', err);
+      console.error('[BadgesTab] Failed to load badges:', err);
       setBadgesError('Failed to load badge data');
     } finally {
       setBadgesLoading(false);

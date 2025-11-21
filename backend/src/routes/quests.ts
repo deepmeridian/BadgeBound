@@ -44,7 +44,7 @@ questsRouter.get("/:wallet", async (req, res, next) => {
           ? pd.completionPercent
           : Math.round(completion * 100);
 
-      return {
+      const result: any = {
         questId: uq.questId,
         status: uq.status,
         wallet: uq.userWallet,
@@ -66,6 +66,12 @@ questsRouter.get("/:wallet", async (req, res, next) => {
           reward: uq.quest.reward,
         },
       };
+
+      if (uq.status === 'CLAIMED' && pd.badgeTokenId) {
+        result.tokenId = pd.badgeTokenId;
+      }
+
+      return result;
     });
 
     res.json(response);
