@@ -39,5 +39,8 @@ export default defineConfig({
     removeVersionSpecifiers(), 
     ...(produceSingleFile ? [viteSingleFile()] : [])
   ],
+  optimizeDeps: {
+    exclude: ['@hashgraph/hedera-wallet-connect/dist/reown']
+  }
 })
 

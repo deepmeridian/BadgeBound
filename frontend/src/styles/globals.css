@@ -193,3 +193,19 @@ html {
   background-color: #16a34a !important; /* tailwind green-600 */
   box-shadow: 0 0 6px rgba(22,163,74,0.6);
 }
+
+/* WalletConnect Modal Styles */
+wcm-modal {
+  position: fixed !important;
+  z-index: 99999 !important;
+  display: block !important;
+}
+
+wcm-modal[data-aria-hidden="false"] {
+  pointer-events: auto !important;
+}
+
+wcm-modal[data-aria-hidden="true"] {
+  pointer-events: none !important;
+  opacity: 0 !important;
+}

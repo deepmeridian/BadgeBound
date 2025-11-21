@@ -119,7 +119,7 @@ function BadgeCard({ badge }: { badge: Badge }) {
           type: 'ERC721',
           options: {
             address: contractAddress,
-            tokenId: badge.tokenId.toString(), // MetaMask requires tokenId for ERC721
+            tokenId: badge.tokenId.toString(),
             image: badge.metadata.image || undefined,
             name: badge.metadata.name,
           },
