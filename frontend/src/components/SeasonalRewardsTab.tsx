@@ -68,9 +68,10 @@ export function SeasonalRewardsTab({ walletAddress, userQuests, currentUserLevel
 
   const currentLevel = currentUserLevel ?? 1;
   const currentXP = currentUserXP ?? 0;
-  const nextLevelXP = 1000;
-  const previousLevelXP = 0;
-  const progressPercent = nextLevelXP > previousLevelXP ? ((currentXP - previousLevelXP) / (nextLevelXP - previousLevelXP)) * 100 : 0;
+  const xpPerLevel = 1000;
+  const currentLevelXP = currentXP % xpPerLevel;
+  const nextLevelXP = xpPerLevel - currentLevelXP;
+  const progressPercent = currentLevelXP > 0 ? (currentLevelXP / xpPerLevel) * 100 : 0;
 
   const [fetchedQuests, setFetchedQuests] = useState<Quest[]>([]);
 
@@ -243,8 +244,8 @@ export function SeasonalRewardsTab({ walletAddress, userQuests, currentUserLevel
               <p className="text-slate-300">Season Progress</p>
             </div>
             <div className="text-right">
-              <p className="text-3xl text-blue-400">{currentXP} XP</p>
-              <p className="text-sm text-slate-400">{Math.max(nextLevelXP - currentXP, 0).toLocaleString()} XP to next level</p>
+              <p className="text-3xl text-blue-400">{currentXP.toLocaleString()} XP</p>
+              <p className="text-sm text-slate-400">{nextLevelXP.toLocaleString()} XP to next level</p>
             </div>
           </div>
           <Progress value={progressPercent} className="h-3 progress-green" />
