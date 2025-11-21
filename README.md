@@ -244,7 +244,9 @@ cp .env.example .env
 VITE_API_URL=http://localhost:4000
 VITE_QUEST_BADGES_ADDRESS=0x...
 VITE_HEDERA_NETWORK=testnet
+VITE_WALLETCONNECT_PROJECT_ID=1234...
 ```
+(see [frontend/WALLETCONNECT_SETUP.md](frontend/WALLETCONNECT_SETUP.md))
 
 **Start Development Server**:
 ```bash

@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@hashgraph/hedera-wallet-connect": "^2.0.3",
+    "@hashgraph/proto": "^2.25.0",
+    "@reown/appkit": "^1.8.14",
     "@tailwindcss/vite": "^4.1.11",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

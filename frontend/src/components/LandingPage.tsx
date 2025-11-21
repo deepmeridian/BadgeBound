@@ -1,6 +1,9 @@
 import { Wallet, ExternalLink } from 'lucide-react';
 import { Button } from './ui/button';
 import { useWallet } from '../hooks/useWallet';
+import { WalletSelectionDialog } from './WalletSelectionDialog';
+import { useState } from 'react';
+import { WalletType } from '../contexts/WalletContext';
 // @ts-ignore
 import logo from '/BadgeBound_Logo.png';
 // Background video asset
@@ -11,19 +14,41 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ onConnectWallet }: LandingPageProps) {
-  const { connectWallet, isConnecting, error } = useWallet();
+  const { connectWallet, isConnecting, error, hasMetaMask } = useWallet();
+  const [showWalletDialog, setShowWalletDialog] = useState(false);
 
-  const handleConnectClick = async () => {
+  const handleConnectClick = () => {
+    //console.log('Connect clicked, hasMetaMask:', hasMetaMask);
+    // If MetaMask is available, show the selection dialog
+    // Otherwise, directly connect with WalletConnect
+    if (hasMetaMask) {
+      //console.log('Showing wallet dialog');
+      setShowWalletDialog(true);
+    } else {
+      //console.log('No MetaMask, connecting directly with WalletConnect');
+      handleSelectWallet('walletconnect');
+    }
+  };
+
+  const handleSelectWallet = async (walletType: WalletType) => {
+    setShowWalletDialog(false);
     try {
-      await connectWallet();
+      await connectWallet(walletType);
       onConnectWallet();
     } catch (err) {
-      //console.error('Failed to connect wallet:', err);
+      // Error is handled in the context
     }
   };
 
   return (
     <div className="landing-root">
+      <WalletSelectionDialog
+        open={showWalletDialog}
+        onClose={() => setShowWalletDialog(false)}
+        onSelectWallet={handleSelectWallet}
+        hasMetaMask={hasMetaMask}
+      />
+      
       <video
         className="landing-bg-video"
         src={spaceBg}
